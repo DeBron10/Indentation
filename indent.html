@@ -1,0 +1,204 @@
+<%@ Page Language="C#" AutoEventWireup="true" %>
+
+<!DOCTYPE html>
+<html>
+<head runat="server">
+
+<title>Task Hierarchy</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f8;
+padding:30px;
+}
+
+#box{
+width:850px;
+border:2px solid #ccc;
+background:white;
+padding:20px;
+font-family:monospace;
+}
+
+.row{
+margin:4px 0;
+}
+
+.label{
+font-weight:bold;
+text-decoration:underline;
+}
+
+.period{
+color:#444;
+margin-left:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<form id="form1" runat="server">
+
+<h2>Task Hierarchy</h2>
+
+<div id="box"></div>
+
+</form>
+
+<script>
+
+var tasks=[
+{ "id":1,"name":"Standalone Project","level":1,"parent":null,"start":"01 Apr 2026","end":"02 Apr 2026" },
+
+
+{ "id":2,"name":"Planning Phase","level":1,"parent":null,"start":"03 Apr 2026","end":"05 Apr 2026" },
+{ "id":3,"name":"Requirement Gathering","level":2,"parent":2,"start":"03 Apr 2026","end":"05 Apr 2026" },
+
+
+{ "id":4,"name":"Design Phase","level":1,"parent":null,"start":"06 Apr 2026","end":"10 Apr 2026" },
+{ "id":5,"name":"System Design","level":2,"parent":4,"start":"06 Apr 2026","end":"07 Apr 2026" },
+{ "id":6,"name":"Architecture Planning","level":3,"parent":5,"start":"07 Apr 2026","end":"08 Apr 2026" },
+
+
+{ "id":7,"name":"Database Phase","level":1,"parent":null,"start":"09 Apr 2026","end":"12 Apr 2026" },
+{ "id":8,"name":"Database Design","level":2,"parent":7,"start":"09 Apr 2026","end":"10 Apr 2026" },
+{ "id":9,"name":"Schema Planning","level":3,"parent":8,"start":"10 Apr 2026","end":"11 Apr 2026" },
+{ "id":10,"name":"Table Structure Design","level":4,"parent":9,"start":"11 Apr 2026","end":"12 Apr 2026" },
+
+
+{ "id":11,"name":"Optimization Phase","level":1,"parent":null,"start":"13 Apr 2026","end":"16 Apr 2026" },
+{ "id":12,"name":"Performance Optimization","level":2,"parent":11,"start":"13 Apr 2026","end":"14 Apr 2026" },
+{ "id":13,"name":"Query Tuning","level":3,"parent":12,"start":"14 Apr 2026","end":"15 Apr 2026" },
+{ "id":14,"name":"Index Setup","level":4,"parent":13,"start":"15 Apr 2026","end":"15 Apr 2026" },
+{ "id":15,"name":"Index Optimization","level":5,"parent":14,"start":"15 Apr 2026","end":"15 Apr 2026" },
+{ "id":16,"name":"Query Optimization","level":5,"parent":14,"start":"15 Apr 2026","end":"16 Apr 2026" },
+
+
+{ "id":17,"name":"Development Phase","level":1,"parent":null,"start":"17 Apr 2026","end":"25 Apr 2026" },
+{ "id":18,"name":"Backend Development","level":2,"parent":17,"start":"17 Apr 2026","end":"21 Apr 2026" },
+{ "id":19,"name":"Frontend Development","level":2,"parent":17,"start":"22 Apr 2026","end":"25 Apr 2026" },
+
+
+{ "id":20,"name":"Testing Phase","level":1,"parent":null,"start":"26 Apr 2026","end":"30 Apr 2026" },
+{ "id":21,"name":"Unit Testing","level":2,"parent":20,"start":"26 Apr 2026","end":"27 Apr 2026" },
+{ "id":22,"name":"Module Testing","level":3,"parent":21,"start":"27 Apr 2026","end":"28 Apr 2026" },
+{ "id":23,"name":"Bug Identification","level":3,"parent":21,"start":"28 Apr 2026","end":"29 Apr 2026" }
+]
+
+
+function getChildren(parentId){
+
+var children=[];
+
+for(var i=0;i<tasks.length;i++){
+
+if(tasks[i].parent===parentId){
+
+children.push(tasks[i]);
+
+}
+
+}
+
+return children;
+
+}
+
+
+
+function renderTask(task,indent){
+
+var box=document.getElementById("box");
+
+var div=document.createElement("div");
+div.className="row";
+div.style.marginLeft=indent+"px";
+
+div.innerHTML="<span class='label'>L"+task.level+". "+task.name+"</span>";
+
+box.appendChild(div);
+
+var children=getChildren(task.id);
+
+if(children.length===0){
+
+var period=document.createElement("div");
+
+period.style.marginLeft=(indent+20)+"px";
+
+period.innerHTML="<span class='period'>Period: "+task.start+" – "+task.end+"</span>";
+
+box.appendChild(period);
+
+return;
+
+}
+
+for(var i=0;i<children.length;i++){
+
+renderTask(children[i],indent+20);
+
+}
+
+}
+
+
+
+var sr=1;
+
+for(var i=0;i<tasks.length;i++){
+
+if(tasks[i].level===1){
+
+var box=document.getElementById("box");
+
+var div=document.createElement("div");
+
+div.className="row";
+
+div.innerHTML="<span>"+sr+". </span><span class='label'>L1. "+tasks[i].name+"</span>";
+
+box.appendChild(div);
+
+sr++;
+
+var children=getChildren(tasks[i].id);
+
+if(children.length===0){
+
+var period=document.createElement("div");
+
+period.style.marginLeft="20px";
+
+period.innerHTML="<span class='period'>Period: "+tasks[i].start+" – "+tasks[i].end+"</span>";
+
+box.appendChild(period);
+
+}
+else{
+
+for(var j=0;j<children.length;j++){
+
+renderTask(children[j],20);
+
+}
+
+}
+
+var br=document.createElement("br");
+
+box.appendChild(br);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
