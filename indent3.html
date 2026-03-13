@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Tasks Ending in April</title>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+.task{
+    margin:3px 0;
+    font-family:Arial;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Tasks Ending in April</h2>
+
+<div id="taskBox"></div>
+
+<script>
+
+$(document).ready(function(){
+
+$.ajax({
+
+url:"/api/tasks",   // .NET API (may not exist yet)
+type:"GET",
+dataType:"json",
+
+success:function(response){
+
+    renderTasks(response);
+
+},
+
+error:function(){
+
+/* SAMPLE DATA IF API NOT READY */
+
+var sampleData=[
+
+{ id:1,title:"Design and Development of Car",parent_id:null,start_date:"01-04-2026",end_date:"31-08-2026",indent:0 },
+
+{ id:2,title:"Concept & Market Definition",parent_id:1,start_date:"01-04-2026",end_date:"31-05-2026",indent:1 },
+
+{ id:3,title:"Market Research",parent_id:2,start_date:"01-04-2026",end_date:"20-04-2026",indent:2 },
+
+{ id:4,title:"Target Customer Identification",parent_id:2,start_date:"10-04-2026",end_date:"25-05-2026",indent:2 },
+
+{ id:5,title:"Demographic Segmentation",parent_id:4,start_date:"10-04-2026",end_date:"30-04-2026",indent:3 },
+
+{ id:8,title:"Design & Aesthetics (Styling)",parent_id:1,start_date:"05-04-2026",end_date:"30-06-2026",indent:1 },
+
+{ id:9,title:"Exterior Design",parent_id:8,start_date:"05-04-2026",end_date:"20-05-2026",indent:2 },
+
+{ id:10,title:"Body Shape Development",parent_id:9,start_date:"10-04-2026",end_date:"20-05-2026",indent:3 },
+
+{ id:11,title:"Aerodynamic Surface Refinement",parent_id:10,start_date:"15-05-2026",end_date:"15-06-2026",indent:4 },
+
+{ id:12,title:"Wind Tunnel Simulation",parent_id:11,start_date:"01-06-2026",end_date:"25-04-2026",indent:5 }
+
+];
+
+renderTasks(sampleData);
+
+}
+
+});
+
+});
+
+
+function renderTasks(data){
+
+var show=[];
+
+/* find April tasks + parents */
+
+for(var i=0;i<data.length;i++){
+
+    var parts=data[i].end_date.split("-");
+    var month=parseInt(parts[1]);
+
+    if(month==4){
+
+        var current=data[i];
+
+        while(current!=null){
+
+            var exists=false;
+
+            for(var j=0;j<show.length;j++){
+                if(show[j].id==current.id){
+                    exists=true;
+                }
+            }
+
+            if(!exists){
+                show.push(current);
+            }
+
+            var parent=null;
+
+            for(var k=0;k<data.length;k++){
+                if(data[k].id==current.parent_id){
+                    parent=data[k];
+                }
+            }
+
+            current=parent;
+        }
+
+    }
+
+}
+
+
+var output="";
+var serial=0;
+
+
+/* display */
+
+for(var i=0;i<data.length;i++){
+
+    var task=data[i];
+
+    var include=false;
+
+    for(var j=0;j<show.length;j++){
+        if(show[j].id==task.id){
+            include=true;
+        }
+    }
+
+    if(include && task.indent>=1){
+
+        var margin=task.indent*40;
+
+        var text="";
+
+        if(task.indent==1){
+
+            serial++;
+
+            if(serial>1){
+                output+="<br>";
+            }
+
+            text+=serial+". ";
+        }
+
+        text+="L"+task.indent+" <b><u>"+task.title+"</u></b>";
+
+        output+="<div class='task' style='margin-left:"+margin+"px'>"+text+"</div>";
+
+
+
+        var hasChild=false;
+
+        for(var c=0;c<show.length;c++){
+            if(show[c].parent_id==task.id){
+                hasChild=true;
+            }
+        }
+
+
+        var parts=task.end_date.split("-");
+        var month=parseInt(parts[1]);
+
+        if(month==4 && hasChild==false){
+
+            output+="<div class='task' style='margin-left:"+margin+"px'>"+
+            "Period: "+task.start_date+" to "+task.end_date+
+            "</div>";
+        }
+
+    }
+
+}
+
+$("#taskBox").html(output);
+
+}
+
+</script>
+
+</body>
+</html>
