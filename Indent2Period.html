@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tasks Ending in April</title>
+
+<style>
+.task{
+    margin:3px 0;
+    font-family: Arial;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Tasks Ending in April</h2>
+
+<div id="taskBox"></div>
+
+<script>
+
+var data=[
+
+{id:1,title:"Design and Development of Car",parent_id:null,start_date:"01-04-2026",end_date:"31-08-2026",indent:0},
+
+{id:2,title:"Concept & Market Definition",parent_id:1,start_date:"01-04-2026",end_date:"31-05-2026",indent:1},
+
+{id:3,title:"Market Research",parent_id:2,start_date:"01-04-2026",end_date:"20-04-2026",indent:2},
+
+{id:4,title:"Target Customer Identification",parent_id:2,start_date:"10-04-2026",end_date:"25-05-2026",indent:2},
+
+{id:5,title:"Demographic Segmentation",parent_id:4,start_date:"10-04-2026",end_date:"30-04-2026",indent:3},
+
+{id:8,title:"Design & Aesthetics (Styling)",parent_id:1,start_date:"05-04-2026",end_date:"30-06-2026",indent:1},
+
+{id:9,title:"Exterior Design",parent_id:8,start_date:"05-04-2026",end_date:"20-05-2026",indent:2},
+
+{id:10,title:"Body Shape Development",parent_id:9,start_date:"10-04-2026",end_date:"20-05-2026",indent:3},
+
+{id:11,title:"Aerodynamic Surface Refinement",parent_id:10,start_date:"15-05-2026",end_date:"15-06-2026",indent:4},
+
+{id:12,title:"Wind Tunnel Simulation",parent_id:11,start_date:"01-06-2026",end_date:"25-04-2026",indent:5},
+
+{id:16,title:"Engineering & Technical Package",parent_id:1,start_date:"01-04-2026",end_date:"31-07-2026",indent:1},
+
+{id:20,title:"Chassis & Suspension Engineering",parent_id:16,start_date:"10-04-2026",end_date:"20-04-2026",indent:2},
+
+{id:23,title:"Electrical & Electronics Architecture",parent_id:16,start_date:"15-04-2026",end_date:"30-04-2026",indent:2},
+
+{id:26,title:"Testing & Validation (Prototyping)",parent_id:1,start_date:"01-06-2026",end_date:"31-07-2026",indent:1},
+
+{id:27,title:"Prototype Development",parent_id:26,start_date:"05-06-2026",end_date:"25-06-2026",indent:2},
+
+{id:28,title:"Initial Prototype Assembly",parent_id:27,start_date:"05-06-2026",end_date:"15-04-2026",indent:3},
+
+{id:30,title:"Manufacturing & Supply Chain",parent_id:1,start_date:"01-07-2026",end_date:"21-04-2026",indent:1},
+
+{id:31,title:"Production Line Setup",parent_id:30,start_date:"05-07-2026",end_date:"21-04-2026",indent:2}
+
+];
+
+var show=[];
+
+/* STEP 1: find tasks ending in April and include their parents */
+
+for(var i=0;i<data.length;i++){
+
+    var parts=data[i].end_date.split("-");
+    var month=parseInt(parts[1]);
+
+    if(month==4){
+
+        var current=data[i];
+
+        while(current!=null){
+
+            var exists=false;
+
+            for(var j=0;j<show.length;j++){
+                if(show[j].id==current.id){
+                    exists=true;
+                }
+            }
+
+            if(!exists){
+                show.push(current);
+            }
+
+            var parent=null;
+
+            for(var k=0;k<data.length;k++){
+                if(data[k].id==current.parent_id){
+                    parent=data[k];
+                }
+            }
+
+            current=parent;
+        }
+    }
+}
+
+
+/* STEP 2: display tasks */
+
+var output="";
+var serial=0;
+
+for(var i=0;i<data.length;i++){
+
+    var task=data[i];
+
+    var include=false;
+
+    for(var j=0;j<show.length;j++){
+        if(show[j].id==task.id){
+            include=true;
+        }
+    }
+
+    if(include && task.indent>=1){
+
+        var margin=task.indent*40;
+
+        var text="";
+
+        if(task.indent==1){
+
+            serial++;
+
+            if(serial>1){
+                output+="<br>";
+            }
+
+            text+=serial+". ";
+        }
+
+        text+="L"+task.indent+" <b><u>"+task.title+"</u></b>";
+
+        output+="<div class='task' style='margin-left:"+margin+"px'>"+text+"</div>";
+
+
+        /* Check if leaf task */
+
+        var hasChild=false;
+
+        for(var c=0;c<show.length;c++){
+            if(show[c].parent_id==task.id){
+                hasChild=true;
+            }
+        }
+
+
+        /* show period only if leaf + April */
+
+        var parts=task.end_date.split("-");
+        var month=parseInt(parts[1]);
+
+        if(month==4 && hasChild==false){
+
+            output+="<div class='task' style='margin-left:"+margin+"px'>"+
+            "Period: "+task.start_date+" to "+task.end_date+
+            "</div>";
+        }
+
+    }
+}
+
+document.getElementById("taskBox").innerHTML=output;
+
+</script>
+
+</body>
+</html>
+
+
+
+<!-- WITH RECURSIVE task_tree AS (
+
+    -- Step 1: tasks ending in specific month
+    SELECT *
+    FROM project_tasks
+    WHERE MONTH(end_date) = 4
+      AND YEAR(end_date) = 2026
+
+    UNION ALL
+
+    -- Step 2: fetch parents recursively
+    SELECT p.*
+    FROM project_tasks p
+    JOIN task_tree t
+      ON p.id = t.parent_id
+)
+
+SELECT DISTINCT *
+FROM task_tree
+ORDER BY sr_no; -->
